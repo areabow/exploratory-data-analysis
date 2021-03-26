@@ -149,12 +149,20 @@ diamonds %>%
 # Try facetting by cut and grouping by carat. Try facetting by carat and grouping by cut. 
 # Which do you prefer?
 
-diamonds %>% group_by()
+# Facetting by cut and grouping by carat
+diamonds %>% ggplot(aes(x = cut_interval(carat, n = 12) , y = price))  + geom_bar(stat = "identity") + facet_grid(cut~.) # This is preferred
+
+# Facetting by carat and grouping by cut
+diamonds %>% ggplot(aes(x = cut , y = price))  + geom_bar(stat = "identity")  + facet_wrap(~cut_interval(carat, n=12))
 
 # EXERCISE: Compare the relationship between price and carat for each colour.
 # What makes it hard to compare the groups? Is grouping better or facetting? 
 # If you use facetting, what annotation might you add to make it easier to see 
 # the differences between panels?
+
+diamonds %>% ggplot(aes(x = cut_width(carat,0.5) , y = price , fill = color)) + geom_bar(stat = "identity")
+
+diamonds %>% ggplot(aes(x = cut_width(carat,0.5) , y = price , fill = color)) + geom_bar(stat = "identity") + facet_grid(color~.)
 
 ### Labels (labs)
 
