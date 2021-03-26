@@ -3,6 +3,7 @@ library(ggplot2)
 library(tidyr)
 library(gridExtra)
 library(patchwork)
+library(RColorBrewer)
 
 data(diamonds)
 data(co2)
@@ -22,17 +23,17 @@ co2 <- data.frame(Year = rep(1959:1997, each = 12),
 ## geom_density
 diamonds %>% 
   ggplot(aes(x = price)) + 
-  geom_density()
+  geom_density(adjust = 5)  # data smoothed
 
 ## geom_histogram
 diamonds %>% 
   ggplot(aes(x = price)) + 
-  geom_histogram()
+  geom_histogram(binwidth = 100) # rougher histogram with increased number of bins
 
 ## geom_freqpoly
 diamonds %>% 
   ggplot(aes(x = price)) + 
-  geom_freqpoly()
+  geom_freqpoly(binwidth = 650) # semi-smoothed data by increasing binwidth
 
 ## additional parameters control smoothing (see ?geom_xxx)
 
@@ -57,7 +58,7 @@ diamonds %>% ggplot(aes(x = carat, y = price)) +
 # courses
 diamonds %>% ggplot(aes(x = carat, y = price)) + 
   geom_point() + 
-  geom_smooth()
+  geom_smooth(method = "lm" , color = "red") # add red linear regression line
 
 # EXERCISE: adapt the code you just used to fit a straight line rather than a smooth
 
@@ -70,8 +71,44 @@ co2 %>% filter(Month == "January") %>%
 # EXERCISE: show lines for all 12 months on the plot (a) by using fill or colour, 
 # (b) without using fill or colour
 
+#Create a distinct color pallete from R colors
+color = grDevices::colors()[grep('gr(a|e)y', grDevices::colors(), invert = T)]
+
+## a.
+co2 %>% ggplot(aes(x = Year, y = co2)) + 
+  geom_line(aes(color = factor(Month , levels = month.name))) + 
+  labs(color = "Month") + 
+  theme(legend.position = "bottom") + 
+  scale_color_manual(values = (sample(color, 12)))
+
+## b.
+colors <- sample(color,12)
+
+#col <- c("January" = colors[1], "February"= colors[2],"March"= colors[3],"April"= colors[4],"May"= colors[5],"June"= colors[6],"July"= colors[7],"August"= colors[8], "September" = colors[9], "October"= colors[10] , "November"= colors[11] , "December"= colors[12]) 
+
+p<-ggplot() +
+  geom_line(data = filter(co2, Month == "January") , aes(x = Year , y = co2 , color = colors[1])) +
+  geom_line(data = filter(co2, Month == "February") , aes(x = Year , y = co2 , color = colors[2])) +
+  geom_line(data = filter(co2, Month == "March") , aes(x = Year , y = co2 , color = colors[3])) +
+  geom_line(data = filter(co2, Month == "April") , aes(x = Year , y = co2 , color = colors[4])) +
+  geom_line(data = filter(co2, Month == "May") , aes(x = Year , y = co2 , color = colors[5])) +
+  geom_line(data = filter(co2, Month == "June") , aes(x = Year , y = co2 , color = colors[6])) +
+  geom_line(data = filter(co2, Month == "July") , aes(x = Year , y = co2 , color = colors[7])) +
+  geom_line(data = filter(co2, Month == "August") , aes(x = Year , y = co2 , color = colors[8])) +
+  geom_line(data = filter(co2, Month == "September") , aes(x = Year , y = co2 , color = colors[9])) +
+  geom_line(data = filter(co2, Month == "October") , aes(x = Year , y = co2 , color = colors[10])) +
+  geom_line(data = filter(co2, Month == "November") , aes(x = Year , y = co2 , color = colors[11])) +
+  geom_line(data = filter(co2, Month == "December") , aes(x = Year , y = co2 , color = colors[12])) 
+p + scale_color_identity(name = "Months" , breaks = colors , labels = month.name , guide = "legend")
+
 # EXERCISE: flip Month and Year around so that each line represents a Year, and the 
 # Month is on the x-axis
+
+co2 %>% ggplot(aes(x = factor(Month, levels = month.name), y = co2, group = Year)) + 
+  geom_line(aes(color = factor(Year))) + 
+  labs(color = "Year") + 
+  theme(legend.position = "bottom") + 
+  scale_color_manual(values = (sample(color, 39)))
 
 ## geom_area
 
@@ -111,6 +148,8 @@ diamonds %>%
 # EXERCISE: Display the distribution of price conditional on cut and carat. 
 # Try facetting by cut and grouping by carat. Try facetting by carat and grouping by cut. 
 # Which do you prefer?
+
+diamonds %>% group_by()
 
 # EXERCISE: Compare the relationship between price and carat for each colour.
 # What makes it hard to compare the groups? Is grouping better or facetting? 
